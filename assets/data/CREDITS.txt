@@ -1,0 +1,4 @@
+Programming & Art: shimeji87
+Music: Degoose, MeBeQuack (from freesound)
+SFX: THE_bizniss, Hoshi Hana (from freesound)
+Engine: As seen in the preloader, HaxeFlixel
