@@ -79,13 +79,14 @@ class SizeIncrease extends Powerup {
 	public override function onPowerup(player:Player) {
 		player.scale.set(6, 6);
 		player.timeToEatLeaf = 0;
-		updateHitbox();
+		player.big = true;
 		super.onPowerup(player);
 	}
 
 	public override function removePowerup(player:Player) {
 		player.scale.set(2, 2);
 		player.timeToEatLeaf = .35;
+		player.big = false;
 		updateHitbox();
 		super.removePowerup(player);
 	}

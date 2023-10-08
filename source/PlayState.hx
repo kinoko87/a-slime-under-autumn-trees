@@ -6,6 +6,8 @@ import Powerup.SpeedIncrease;
 import flixel.FlxCamera.FlxCameraFollowStyle;
 import flixel.FlxCamera;
 import flixel.FlxG;
+import flixel.FlxObject;
+import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.group.FlxGroup;
@@ -24,6 +26,7 @@ class PlayState extends FlxState {
 	var timeLeftText:FlxText;
 	var scoreText:FlxText;
 
+	var dumbRect:FlxObject;
 	var leafedSpawnCooldown:Float = 3;
 	var leafSpawnTime:Float = 3;
 	var powUps:FlxTypedGroup<Powerup>;
@@ -58,6 +61,7 @@ class PlayState extends FlxState {
 		add(scoreText);
 		powUps = new FlxTypedGroup<Powerup>();
 		add(powUps);
+		dumbRect = new FlxObject(0, 0, player.width * 3, player.height * 3);
 		#if debug
 		FlxG.debugger.drawDebug = true;
 		#end
@@ -84,6 +88,10 @@ class PlayState extends FlxState {
 	var powUpsWeights = [.40, .40, .20];
 
 	override public function update(elapsed:Float) {
+		if (player.big) {
+			dumbRect.x = player.x - player.width;
+			dumbRect.y = player.y - player.height;
+		}
 		#if debug
 		if (FlxG.keys.justPressed.K) {
 			openSubState(new GameEndSubstate(true));
@@ -114,8 +122,14 @@ class PlayState extends FlxState {
 			}
 		}
 		for (i in leafedTiles) {
-			if (player.overlaps(i)) {
-				player.eatLeaf(i);
+			if (!player.big) {
+				if (player.overlaps(i)) {
+					player.eatLeaf(i);
+				}
+			}
+			else {
+				if (dumbRect.overlaps(i))
+					player.eatLeaf(i);
 			}
 		}
 
@@ -125,7 +139,6 @@ class PlayState extends FlxState {
 				powUps.remove(i);
 			}
 		}
-
 		leafSpawnTime += elapsed;
 		if (leafSpawnTime >= leafedSpawnCooldown) {
 			var tileNo = FlxG.random.getObject([1, 2, 3], leafWeightsArr);
@@ -138,14 +151,11 @@ class PlayState extends FlxState {
 						break;
 					}
 				}
-
 				l.addLeaves();
 			}
 			leafSpawnTime = 0;
 		}
-
 		roundTime -= elapsed;
-
 		if (roundTime <= 90) {
 			leafedSpawnCooldown = 2;
 			leafWeightsArr = [.70, .20, .10];
@@ -158,13 +168,12 @@ class PlayState extends FlxState {
 			leafWeightsArr = [.50, .30, .20];
 			leafedSpawnCooldown = .65;
 		}
-		if (leafedTiles.length == tiles.members.length) {
+		if (leafedTiles.length >= tiles.members.length - 1) {
 			openSubState(new GameEndSubstate(false));
 		}
 		if (roundTime <= 0) {
 			openSubState(new GameEndSubstate(true));
 		}
-
 		timeLeftText.text = "Time Left: " + FlxStringUtil.formatTime(roundTime);
 		scoreText.text = "Score: " + Game.currentGameScore;
 		scoreText.x = FlxG.width - scoreText.width - 16;

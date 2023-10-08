@@ -6,6 +6,7 @@ import flixel.util.FlxTimer;
 
 class Player extends FlxSprite {
 	public var timeToEatLeaf:Float = 0.35;
+	public var big:Bool = false;
 
 	public function new(x:Float, y:Float) {
 		super(x, y);
